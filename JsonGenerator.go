@@ -9,11 +9,11 @@ import (
 	"os"
 )
 
-var s = flag.String("Json", "", "Json字符串")
+var s = flag.String("j", "", "Json字符串")
 
-var f = flag.String("FilePath", "", "Json格式文件路径")
+var f = flag.String("f", "", "Json格式文件路径")
 
-var n = flag.String("Name", "", "Json格式文件路径")
+var n = flag.String("n", "", "Json格式文件路径")
 
 func main() {
 	flag.Parse()
@@ -30,15 +30,15 @@ func main() {
 		jsonStr = string(data)
 		name = *n
 		if len(name) == 0 {
-			fmt.Println("-Name   : Json类名")
+			fmt.Println("-n   : Json类名")
 			return
 		}
 	} else {
 		fmt.Println("使用方式：")
 		//fmt.Println("-Json   : Json字符串")
-		fmt.Println("-FilePath   : Json格式文件路径")
+		fmt.Println("-f   : Json格式文件路径")
 
-		fmt.Println("-Name   : Json类名")
+		fmt.Println("-n   : Json类名")
 		return
 	}
 
