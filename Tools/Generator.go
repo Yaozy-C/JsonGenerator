@@ -136,6 +136,7 @@ func isExist(path string) bool {
 	}
 	return true
 }
+
 func Generate(name string, infoList []*Object) {
 
 	if !isExist("./code") {
@@ -151,11 +152,12 @@ func Generate(name string, infoList []*Object) {
 	// Header content
 	head := "#ifndef " + replaceAll(name) + "_H\n#define " + replaceAll(name) + "_H\n\n#include \"DataPacket.h\"\n"
 
-	// Class declaration and property
+	// Class declaration and properties
 	property := "public:\n\n"
 	object := "class " + GenerateObject(name) + "{\n"
 
-	// Function declarations (only declare them in the header)
+	// Function declarations (public functions in the header)
+	object += property
 	object += "    void EncodeJson(cJSON *writer);\n"
 	object += "    void DecodeJson(cJSON *reader);\n"
 
