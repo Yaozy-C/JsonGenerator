@@ -136,7 +136,6 @@ func isExist(path string) bool {
 	}
 	return true
 }
-
 func Generate(name string, infoList []*Object) {
 
 	if !isExist("./code") {
@@ -147,13 +146,19 @@ func Generate(name string, infoList []*Object) {
 	}
 
 	fileName := "./code/" + replaceMax(name) + ".h"
+	cppFileName := "./code/" + replaceMax(name) + ".cpp"
 
+	// Header content
 	head := "#ifndef " + replaceAll(name) + "_H\n#define " + replaceAll(name) + "_H\n\n#include \"DataPacket.h\"\n"
 
+	// Class declaration and property
 	property := "public:\n\n"
 	object := "class " + GenerateObject(name) + "{\n"
-	encode := "void " + replaceMax(name) + "::EncodeJson(cJSON *writer) {\n"
-	decode := "void " + replaceMax(name) + "::DecodeJson(cJSON *reader) {\n"
+
+	// Function declarations (only declare them in the header)
+	object += "    void EncodeJson(cJSON *writer);\n"
+	object += "    void DecodeJson(cJSON *reader);\n"
+
 	for _, info := range infoList {
 		res := GenerateHead(info.name, info.tType, info.childType)
 		if !strings.Contains(head, res) {
@@ -161,6 +166,22 @@ func Generate(name string, infoList []*Object) {
 		}
 
 		property += GenerateProperty(info.name, info.tType, info.childType, info.count)
+	}
+
+	object += property
+	object += "};\n\n"
+
+	// End of header content
+	head += object
+	head += "#endif //" + replaceAll(name) + "_H"
+
+	// cpp file content for function implementations
+	cppFileContent := ""
+	cppFileContent += "#include \"" + replaceMax(name) + ".h\"\n"
+	encode := "void " + replaceMax(name) + "::EncodeJson(cJSON *writer) {\n"
+	decode := "void " + replaceMax(name) + "::DecodeJson(cJSON *reader) {\n"
+
+	for _, info := range infoList {
 		d, e := GenerateFunction(info.name)
 		encode += e
 		decode += d
@@ -169,17 +190,16 @@ func Generate(name string, infoList []*Object) {
 	encode += "}\n\n"
 	decode += "}\n\n"
 
-	object += property
-	object += "	void DecodeJson(cJSON *reader) override;\n\n	void EncodeJson(cJSON *writer) override;\n};\n\n"
+	cppFileContent += encode
+	cppFileContent += decode
 
-	code := head + "\n" + object
+	// Writing to header file
+	log.Println("\n" + fileName + "\n" + head)
+	writeToFile(fileName, head)
 
-	code += encode
-	code += decode
+	// Writing to cpp file
+	log.Println("\n" + cppFileName + "\n" + cppFileContent)
+	writeToFile(cppFileName, cppFileContent)
 
-	code += "#endif //" + replaceAll(name) + "_H"
-	log.Println("\n" + fileName + "\n" + code)
-
-	writeToFile(fileName, code)
 	return
 }
